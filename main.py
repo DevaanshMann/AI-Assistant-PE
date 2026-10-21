@@ -105,12 +105,11 @@ def stream_review(resume_text: str, job_description: str, persona_key: str):
     with client.messages.stream(
         model="claude-opus-4-7",
         max_tokens=4000,
-        thinking={"type": "adaptive"},
+        thinking=anthropic.types.ThinkingConfigAdaptiveParam(type="adaptive"),
         system=system_prompt,
-        messages=[{"role": "user", "content": user_message}],
+        messages=[anthropic.types.MessageParam(role="user", content=user_message)],
     ) as stream:
-        for text in stream.text_stream:
-            yield text
+        yield from stream.text_stream
 
 
 # ── UI ───────────────────────────────────────────────────────────────────────
@@ -130,7 +129,7 @@ def main():
 
     # Persona selector
     st.subheader("👤 Choose Your Reviewer")
-    persona_key = st.selectbox(
+    persona_key: str = st.selectbox(  # type: ignore[assignment]
         "Who is reviewing your resume?",
         options=list(PERSONAS.keys()),
         help="Each reviewer prioritizes different signals. Pick the one closest to your target role.",
@@ -145,7 +144,7 @@ def main():
 
     with col1:
         st.subheader("📋 Your Resume")
-        resume_text = st.text_area(
+        resume_text: str = st.text_area(  # type: ignore[assignment]
             "Paste your resume text",
             height=420,
             placeholder="Paste the full plain text of your resume here…",
@@ -154,7 +153,7 @@ def main():
 
     with col2:
         st.subheader("💼 Job Description")
-        job_description = st.text_area(
+        job_description: str = st.text_area(  # type: ignore[assignment]
             "Paste the job description",
             height=420,
             placeholder="Paste the job description you are applying to…",
